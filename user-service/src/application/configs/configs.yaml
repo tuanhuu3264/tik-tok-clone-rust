@@ -1,0 +1,28 @@
+app:
+  name: "user-service"
+  version: "0.1.0"
+  environment: "development"  
+  debug: false
+
+features:
+  enable_caching: true
+  enable_rate_limiting: true
+  enable_metrics: true
+  enable_tracing: true
+
+cache:
+  ttl_seconds: 3600  
+  max_size: 10000
+  enable_redis: true
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 100
+  burst_size: 20
+
+logging:
+  level: "info"  
+  format: "json"
+  enable_file_logging: false
+  log_file_path: null
+
