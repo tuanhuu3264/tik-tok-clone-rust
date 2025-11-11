@@ -14,7 +14,7 @@ pub struct Profile {
 }
 
 impl Profile {
-    pub fn new(user_id: UserId) -> Self {
+    pub fn new(user_id: UserId, status_id: StatusId) -> Self {
         let now = Utc::now();
         Self {
             user_id,
@@ -23,11 +23,13 @@ impl Profile {
             avatar_url: None,
             created_at: now,
             updated_at: now,
+            status_id,
         }
     }
 
     pub fn new_with_details(
         user_id: UserId,
+        status_id: StatusId,
         display_name: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
@@ -40,6 +42,7 @@ impl Profile {
             avatar_url,
             created_at: now,
             updated_at: now,
+            status_id,
         }
     }
 
