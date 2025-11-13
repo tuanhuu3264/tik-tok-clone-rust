@@ -1,6 +1,5 @@
 use axum::{extract::Path, http::StatusCode, Json};
 use crate::application::dto::{CreateUserDto, UserDto};
-use crate::application::errors::ApplicationError;
 
 /// Health check endpoint
 pub async fn health_check() -> &'static str {
@@ -9,7 +8,7 @@ pub async fn health_check() -> &'static str {
 
 /// Create user handler
 pub async fn create_user(
-    Json(dto): Json<CreateUserDto>,
+    Json(_dto): Json<CreateUserDto>,
 ) -> Result<(StatusCode, Json<UserDto>), (StatusCode, String)> {
     // TODO: Inject use case here
     // For now, return error as this needs proper dependency injection setup
@@ -18,7 +17,7 @@ pub async fn create_user(
 
 /// Get user handler
 pub async fn get_user(
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<Json<UserDto>, (StatusCode, String)> {
     // TODO: Inject use case here
     Err((StatusCode::NOT_IMPLEMENTED, "Use case not injected".to_string()))
@@ -26,8 +25,8 @@ pub async fn get_user(
 
 /// Update user handler
 pub async fn update_user(
-    Path(id): Path<String>,
-    Json(dto): Json<serde_json::Value>,
+    Path(_id): Path<String>,
+    Json(_dto): Json<serde_json::Value>,
 ) -> Result<Json<UserDto>, (StatusCode, String)> {
     // TODO: Inject use case here
     Err((StatusCode::NOT_IMPLEMENTED, "Use case not injected".to_string()))
@@ -35,7 +34,7 @@ pub async fn update_user(
 
 /// Delete user handler
 pub async fn delete_user(
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     // TODO: Inject use case here
     Err((StatusCode::NOT_IMPLEMENTED, "Use case not injected".to_string()))

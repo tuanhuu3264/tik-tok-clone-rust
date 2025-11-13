@@ -30,7 +30,7 @@ impl BaseCommands<User, UserId> for PostgreSQLUserCommands {
         self.create_user(entity).await
     }
 
-    async fn update_postgres(&self, id: &UserId, entity: &User) -> Result<(), DomainError> {
+    async fn update_postgres(&self, _id: &UserId, entity: &User) -> Result<(), DomainError> {
         self.update_user(entity).await
     }
 
@@ -49,17 +49,17 @@ impl BaseCommands<User, UserId> for PostgreSQLUserCommands {
 #[async_trait]
 impl UserCommands for PostgreSQLUserCommands {
     async fn create_user(&self, user: &User) -> Result<(), DomainError> {
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO users (id, username, email, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5)
             "#,
-            user.id.as_uuid(),
-            user.username.as_str(),
-            user.email.as_str(),
-            user.created_at,
-            user.updated_at
         )
+        .bind(user.id.as_uuid())
+        .bind(user.username.as_str())
+        .bind(user.email.as_str())
+        .bind(user.created_at)
+        .bind(user.updated_at)
         .execute(&self.pool)
         .await
         .map_err(|e| DomainError::ValidationError(format!("PostgreSQL error: {}", e)))?;
@@ -68,17 +68,17 @@ impl UserCommands for PostgreSQLUserCommands {
     }
 
     async fn update_user(&self, user: &User) -> Result<(), DomainError> {
-        sqlx::query!(
+        sqlx::query(
             r#"
             UPDATE users
             SET username = $2, email = $3, updated_at = $4
             WHERE id = $1
             "#,
-            user.id.as_uuid(),
-            user.username.as_str(),
-            user.email.as_str(),
-            user.updated_at
         )
+        .bind(user.id.as_uuid())
+        .bind(user.username.as_str())
+        .bind(user.email.as_str())
+        .bind(user.updated_at)
         .execute(&self.pool)
         .await
         .map_err(|e| DomainError::ValidationError(format!("PostgreSQL error: {}", e)))?;
@@ -87,10 +87,8 @@ impl UserCommands for PostgreSQLUserCommands {
     }
 
     async fn delete_user(&self, id: &UserId) -> Result<(), DomainError> {
-        sqlx::query!(
-            "DELETE FROM users WHERE id = $1",
-            id.as_uuid()
-        )
+        sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(id.as_uuid())
         .execute(&self.pool)
         .await
         .map_err(|e| DomainError::ValidationError(format!("PostgreSQL error: {}", e)))?;

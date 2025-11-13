@@ -1,6 +1,7 @@
 pub mod postgres;
 pub mod postgreSQL;
 pub mod cassandra;
+pub mod redis;
 pub mod redis_cache;
 
 pub use postgres::{PostgresPool, create_pool, create_pool_from_config};

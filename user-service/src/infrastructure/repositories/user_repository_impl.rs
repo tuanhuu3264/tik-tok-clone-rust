@@ -2,6 +2,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use crate::domain::users::entities::user::User;
 use crate::domain::users::repositories::{UserRepository, UserCommands, UserQueries};
+use crate::domain::base::repositories::BaseQueries;
 use crate::domain::users::repositories::commands::PostgreSQLUserCommands;
 use crate::domain::users::repositories::queries::CassandraUserQueries;
 use crate::domain::value_objects::{Email, UserId, Username};

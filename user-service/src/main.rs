@@ -2,6 +2,7 @@ mod application;
 mod domain;
 mod infrastructure;
 mod presentation;
+mod di;
 
 use infrastructure::config::Config;
 use presentation::server::create_server;
@@ -16,8 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = Config::load()?;
 
-    let server = create_server(config).await?;
-    server.await?;
+    create_server(config).await?;
 
     Ok(())
 }

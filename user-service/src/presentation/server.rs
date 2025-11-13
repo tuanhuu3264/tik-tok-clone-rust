@@ -1,12 +1,16 @@
-use axum::{Router, Server};
+use axum::Router;
+use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use crate::infrastructure::config::Config;
 use crate::presentation::routes::create_router;
+use crate::di::AppContext;
+use std::sync::Arc;
 
-pub async fn create_server(config: Config) -> Result<Server<axum::extract::connect_info::IntoMakeServiceWithConnectInfo<Router, std::net::SocketAddr>, Router>, Box<dyn std::error::Error>> {
-    let app = create_router().await?;
+pub async fn create_server(config: Config) -> Result<(), Box<dyn std::error::Error>> {
+    let context = Arc::new(AppContext::new(config.clone()).await?);
+    let app = create_router(context).await?;
 
     let app = app
         .layer(
@@ -15,13 +19,14 @@ pub async fn create_server(config: Config) -> Result<Server<axum::extract::conne
                 .layer(CorsLayer::permissive())
         );
 
-    let addr = format!("{}:{}", config.server.host, config.server.port)
-        .parse()?;
-
-    let server = Server::bind(&addr).serve(app.into_make_service());
+    let addr = format!("{}:{}", config.server.host, config.server.port);
+    let listener = TcpListener::bind(&addr).await?;
 
     tracing::info!("Server running on {}", addr);
+    tracing::info!("GraphQL endpoint: http://{}/graphql", addr);
+    tracing::info!("GraphiQL playground: http://{}/graphiql", addr);
 
-    Ok(server)
+    axum::serve(listener, app).await?;
+    Ok(())
 }
 

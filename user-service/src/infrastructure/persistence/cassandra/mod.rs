@@ -1,11 +1,12 @@
 use std::sync::Arc;
 use scylla::{Session, SessionBuilder};
 use scylla::transport::errors::QueryError;
+use scylla::serialize::row::SerializeRow;
 use crate::infrastructure::config::CassandraConfig;
 
 pub type CassandraSession = Arc<Session>;
 
-pub async fn create_session(config: &CassandraConfig) -> Result<CassandraSession, QueryError> {
+pub async fn create_session(config: &CassandraConfig) -> Result<CassandraSession, Box<dyn std::error::Error>> {
     let mut session_builder = SessionBuilder::new()
         .known_node(&config.url);
 
@@ -32,25 +33,26 @@ where
 {
     let result = session.query(query, &[]).await?;
     let mut results = Vec::new();
-    for row in result.rows().unwrap_or(&[]) {
-        results.push(mapper(row)?);
+    for row in result.rows().unwrap_or_default() {
+        results.push(mapper(&row)?);
     }
     Ok(results)
 }
 
-pub async fn execute_query_with_params<T, F>(
+pub async fn execute_query_with_params<T, F, P>(
     session: &CassandraSession,
     query: &str,
-    params: &[scylla::frame::value::Value],
+    params: P,
     mapper: F,
 ) -> Result<Vec<T>, QueryError>
 where
     F: Fn(&scylla::frame::response::result::Row) -> Result<T, QueryError>,
+    P: SerializeRow,
 {
     let result = session.query(query, params).await?;
     let mut results = Vec::new();
-    for row in result.rows().unwrap_or(&[]) {
-        results.push(mapper(row)?);
+    for row in result.rows().unwrap_or_default() {
+        results.push(mapper(&row)?);
     }
     Ok(results)
 }
@@ -67,14 +69,15 @@ where
     Ok(results.into_iter().next())
 }
 
-pub async fn execute_query_one_with_params<T, F>(
+pub async fn execute_query_one_with_params<T, F, P>(
     session: &CassandraSession,
     query: &str,
-    params: &[scylla::frame::value::Value],
+    params: P,
     mapper: F,
 ) -> Result<Option<T>, QueryError>
 where
     F: Fn(&scylla::frame::response::result::Row) -> Result<T, QueryError>,
+    P: SerializeRow,
 {
     let results = execute_query_with_params(session, query, params, mapper).await?;
     Ok(results.into_iter().next())
@@ -88,11 +91,14 @@ pub async fn execute_statement(
     Ok(())
 }
 
-pub async fn execute_statement_with_params(
+pub async fn execute_statement_with_params<P>(
     session: &CassandraSession,
     query: &str,
-    params: &[scylla::frame::value::Value],
-) -> Result<(), QueryError> {
+    params: P,
+) -> Result<(), QueryError>
+where
+    P: SerializeRow,
+{
     session.query(query, params).await?;
     Ok(())
 }

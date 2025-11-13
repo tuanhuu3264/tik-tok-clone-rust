@@ -8,4 +8,5 @@ pub mod base;
 pub mod users;
 pub mod profiles;
 pub mod credentials;
+pub mod passwords;
 
