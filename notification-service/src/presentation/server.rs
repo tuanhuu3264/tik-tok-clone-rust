@@ -9,7 +9,7 @@ pub async fn create_server(config: Config) -> Result<Server<axum::extract::conne
     let app = create_router().await?;
 
     let app = app
-        .layer(
+        .layer(     
             ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
                 .layer(CorsLayer::permissive())

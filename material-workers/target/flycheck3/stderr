@@ -1,0 +1,8 @@
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+error: failed to select a version for the requirement `amqprs = "^0.10"`
+candidate versions found which didn't match: 2.1.3, 2.1.2, 2.1.1, ...
+location searched: crates.io index
+required by package `material-workers v0.1.0 (D:\tiktok clone\be\material-workers)`
+if you are looking for the prerelease package it needs to be specified explicitly
+    amqprs = { version = "1.1.0-rc.2" }
